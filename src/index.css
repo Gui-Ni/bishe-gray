@@ -444,8 +444,8 @@ body {
 
 /* 空状态摇摆动画 */
 @keyframes gentle-swing {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+  0%, 100% { transform: rotate(-0.5deg); }
+  50% { transform: rotate(0.5deg); }
 }
 
 .gentle-swing {

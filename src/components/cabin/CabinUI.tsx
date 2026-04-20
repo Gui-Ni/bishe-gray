@@ -15,8 +15,8 @@ import {
 // Sound audio URLs
 const SOUND_URLS: Record<SoundType, string> = {
   none: '',
-  white: '',
-  rain: 'https://assets.mixkit.co/active_storage/sfx/219/219-preview.mp3',
+  white: 'https://assets.mixkit.co/active_storage/sfx/2747/2747-preview.mp3',
+  rain: 'https://assets.mixkit.co/active_storage/sfx/2394/2394-preview.mp3',
   forest: 'https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3',
   ocean: 'https://assets.mixkit.co/active_storage/sfx/2411/2411-preview.mp3',
 };
@@ -29,6 +29,7 @@ const THEMES: Record<ThemeType, string> = {
   night: '#0a0a1a',
   aurora: '#1a0a2e',
 };
+
 
 // Utility function outside component
 const formatTime = (seconds: number) => {
@@ -77,7 +78,8 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   const [confirmProgress, setConfirmProgress] = useState(0);
   const [pushProgress, setPushProgress] = useState(0);
   const [balls, setBalls] = useState<EnergyBall[]>([]);
-  const [randomSpots, setRandomSpots] = useState<{ id: number; deg: number; size: number }[]>([]);
+  const [randomSpots, setRandomSpots] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
+  const [burstParticles, setBurstParticles] = useState<{ id: number; x: number; y: number; angle: number; speed: number; size: number }[]>([]);
   const [, setRipples] = useState<Ripple[]>([]);
   const [recordFeedback, setRecordFeedback] = useState('');
   const rippleIdRef = useRef(0);
@@ -243,14 +245,22 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   // Energy ball generation
   useEffect(() => {
     if (cabinMode === 'recharge') {
-      const generateNewBalls = () =>
-        [...Array(5)].map(() => ({
+      const generateNewBalls = () => {
+        const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const maxX = ((w - 64) / 2 - 60) * 0.8; // 80% of half frame width
+        const frameHeight = h - 104;
+        const topMargin = frameHeight * 0.1;
+        const minY = -(h - 64) / 2 + 40 + topMargin; // 10% margin from top
+        const maxY = -(frameHeight * 0.08); // keep away from center
+        return [...Array(5)].map(() => ({
           id: Math.random(),
           isConsumed: false,
-          x: (Math.random() - 0.5) * 600,
-          y: (Math.random() - 0.5) * 300 - 50,
+          x: (Math.random() - 0.5) * maxX * 2,
+          y: minY + Math.random() * (maxY - minY),
           size: 0.6 + Math.random() * 0.6,
         }));
+      };
 
       if (balls.length === 0) {
         setBalls(generateNewBalls());
@@ -269,28 +279,47 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   // Inspiration spot generation - constrained within U-frame
   useEffect(() => {
     if (cabinMode === 'inspiration') {
-      const generateSpots = () =>
+      const generateSpots = () => {
+        const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const maxX = ((w - 64) / 2 - 60) * 0.8;
+        const frameHeight = h - 104;
+        const topMargin = frameHeight * 0.1;
+        const minY = -(h - 64) / 2 + 40 + topMargin;
+        const maxY = -(frameHeight * 0.15); // 15% bottom margin, keep away from center
         setRandomSpots([
-          { id: Math.random(), deg: -35 + Math.random() * 25, size: 0.5 + Math.random() * 0.5 },
-          { id: Math.random(), deg: 15 + Math.random() * 25, size: 0.5 + Math.random() * 0.5 },
+          { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
+          { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
         ]);
+      };
       generateSpots();
 
       const spotInterval = setInterval(() => {
         setRandomSpots((prev) => {
           if (prev.length > 3) return prev;
+          const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+          const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+          const maxX = ((w - 64) / 2 - 60) * 0.8;
+          const frameHeight = h - 104;
+          const topMargin = frameHeight * 0.1;
+          const minY = -(h - 64) / 2 + 40 + topMargin;
+          const maxY = -(frameHeight * 0.15); // 15% bottom margin
           return [
             ...prev,
             {
               id: Math.random(),
-              deg: -45 + Math.random() * 90,
-              size: 0.4 + Math.random() * 0.6,
+              x: (Math.random() - 0.5) * maxX * 2,
+              y: minY + Math.random() * (maxY - minY),
+              size: 0.6 + Math.random() * 0.6,
             },
           ];
         });
       }, 4000);
 
       return () => clearInterval(spotInterval);
+    } else {
+      setRandomSpots([]);
+      setBurstParticles([]);
     }
   }, [cabinMode]);
 
@@ -299,16 +328,44 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     const newRipple = { id: rippleIdRef.current++, x: e.clientX, y: e.clientY };
     setRipples((prev) => [...prev, newRipple]);
     setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== newRipple.id)), 2500);
+
+    // Find the clicked spot position
+    const spot = randomSpots.find((s) => s.id === id);
+    if (spot) {
+      // Generate burst particles from spot center
+      const particleCount = 8;
+      const newParticles = [...Array(particleCount)].map((_, i) => ({
+        id: Math.random(),
+        x: spot.x,
+        y: spot.y,
+        angle: (360 / particleCount) * i + Math.random() * 20 - 10,
+        speed: 80 + Math.random() * 60,
+        size: 0.6 + Math.random() * 0.4,
+      }));
+      setBurstParticles((prev) => [...prev, ...newParticles]);
+      setTimeout(() => {
+        setBurstParticles((prev) => prev.filter((p) => !newParticles.find((np) => np.id === p.id)));
+      }, 800);
+    }
+
     setRandomSpots((prev) => prev.filter((s) => s.id !== id));
     setTimeout(
-      () =>
+      () => {
+        const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const maxX = ((w - 64) / 2 - 60) * 0.8;
+        const frameHeight = h - 104;
+        const topMargin = frameHeight * 0.1;
+        const minY = -(h - 64) / 2 + 40 + topMargin;
+        const maxY = -(frameHeight * 0.15); // 15% bottom margin
         setRandomSpots((prev) => [
           ...prev,
-          { id: Math.random(), deg: -45 + Math.random() * 90, size: 0.6 + Math.random() * 0.8 },
-        ]),
+          { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
+        ]);
+      },
       500
     );
-  }, [cabinMode]);
+  }, [cabinMode, randomSpots]);
 
   return (
     <motion.div
@@ -324,7 +381,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     >
       {/* Monitor container - U-shaped monitor frame */}
       <div
-        className="absolute inset-x-8 top-16 bottom-24 rounded-3xl overflow-hidden"
+        className="absolute inset-x-8 top-24 bottom-24 rounded-3xl overflow-hidden"
         style={{ zIndex: 10, position: 'absolute' }}
       >
         {/* Background with curved bottom using CSS mask */}
@@ -361,8 +418,8 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                 transition={{ duration: 1 }}
                 className="absolute inset-0 z-50 bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center rounded-xl"
               >
-                <SyncLogo size="large" isSyncing={true} className="mb-8 scale-110 pointer-events-none" />
-                <p className="text-[#333]/60 tracking-[0.4em] text-sm font-medium">
+                <SyncLogo size="large" isSyncing={true} className="mb-8 scale-75 pointer-events-none" />
+                <p className="text-center text-[#333]/60 tracking-[0.4em] text-sm font-medium">
                   舱门将在 8s 后打开
                 </p>
               </motion.div>
@@ -487,30 +544,76 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
             </div>
           )}
 
-          {/* Inspiration: click spots - inside monitor, constrained */}
+          {/* Inspiration: click spots - emission style */}
           {cabinMode === 'inspiration' && (
             <AnimatePresence>
               {randomSpots.map((spot) => (
                 <motion.div
                   key={spot.id}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: spot.size }}
+                  initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                  animate={{
+                    opacity: 1,
+                    scale: spot.size,
+                    x: spot.x,
+                    y: spot.y,
+                  }}
                   exit={{ opacity: 0, scale: spot.size * 3, filter: 'blur(10px)' }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                  className="absolute w-full h-full flex items-start justify-center pointer-events-none z-40"
-                  style={{ rotate: `${spot.deg}deg` }}
+                  transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="absolute flex items-center justify-center pointer-events-none z-40"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '48px',
+                    height: '48px',
+                    marginLeft: '-24px',
+                    marginTop: '-24px',
+                  }}
                 >
+                  {/* Trail effect */}
+                  <motion.div
+                    initial={{ opacity: 0.6, scale: 0.3 }}
+                    animate={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.8 }}
+                    className="absolute w-8 h-8 rounded-full bg-white/20 blur-[8px]"
+                  />
                   <div
-                    className="w-12 h-12 -mt-12 rounded-full border border-white/30 bg-white/10 backdrop-blur-md flex items-center justify-center cursor-pointer pointer-events-auto hover:bg-white/30 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                    className="w-full h-full rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center cursor-pointer pointer-events-auto hover:bg-white/30 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                     onMouseDown={(e) => handleSpotClick(e, spot.id)}
                   >
                     <motion.div
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
-                      transition={{ duration: 1.5 + spot.size, repeat: Infinity }}
-                      className="absolute w-3 h-3 bg-white rounded-full blur-[2px]"
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.8, 0.3, 0.8] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                      className="absolute w-4 h-4 bg-white rounded-full blur-[3px]"
                     />
                   </div>
                 </motion.div>
+              ))}
+
+              {/* Burst particles */}
+              {burstParticles.map((particle) => (
+                <motion.div
+                  key={particle.id}
+                  initial={{
+                    opacity: 1,
+                    x: particle.x,
+                    y: particle.y,
+                    scale: particle.size,
+                  }}
+                  animate={{
+                    opacity: 0,
+                    x: particle.x + Math.cos((particle.angle * Math.PI) / 180) * particle.speed,
+                    y: particle.y + Math.sin((particle.angle * Math.PI) / 180) * particle.speed,
+                    scale: 0,
+                  }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className="absolute w-3 h-3 rounded-full bg-white/80 pointer-events-none z-50"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    marginLeft: '-6px',
+                    marginTop: '-6px',
+                  }}
+                />
               ))}
             </AnimatePresence>
           )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft } from 'lucide-react';
 import { SoundType, ThemeType } from '../../types';
@@ -29,8 +29,15 @@ const THEMES: { value: ThemeType; label: string; colors: string }[] = [
 
 export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigModalProps) {
   const [duration, setDuration] = useState(mode === 'recharge' ? 10 : 12);
-  const [sound, setSound] = useState<SoundType>('none');
-  const [theme, setTheme] = useState<ThemeType>('default');
+  const [sound, setSound] = useState<SoundType>(mode === 'recharge' ? 'ocean' : 'forest');
+  const [theme, setTheme] = useState<ThemeType>(mode === 'recharge' ? 'ocean' : 'forest');
+
+  // Reset state when mode changes
+  useEffect(() => {
+    setDuration(mode === 'recharge' ? 10 : 12);
+    setSound(mode === 'recharge' ? 'ocean' : 'forest');
+    setTheme(mode === 'recharge' ? 'ocean' : 'forest');
+  }, [mode]);
 
   const durations = mode === 'recharge' ? [5, 10, 15] : [8, 12, 20];
 
