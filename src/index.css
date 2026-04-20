@@ -506,8 +506,10 @@ body {
 }
 
 /* 确保轨道式输入在触屏上足够大 */
-input[type="range"] {
-  min-height: 44px;
+@media (hover: none) and (pointer: coarse) {
+  input[type="range"] {
+    min-height: 44px;
+  }
 }
 
 /* iPad横屏适配 */
