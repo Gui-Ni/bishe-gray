@@ -80,7 +80,7 @@ export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigM
                   <button
                     key={d}
                     onClick={() => setDuration(d)}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all touch-target min-h-[44px] ${
                       duration === d
                         ? 'bg-[#4FACFE] text-white'
                         : 'bg-white/10 text-white/60 hover:bg-white/20'
@@ -100,7 +100,7 @@ export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigM
                   <button
                     key={s.value}
                     onClick={() => setSound(s.value)}
-                    className={`py-2 rounded-lg text-center transition-all ${
+                    className={`py-2 rounded-lg text-center transition-all touch-target min-h-[44px] ${
                       sound === s.value
                         ? 'bg-[#4FACFE]/30 border border-[#4FACFE]'
                         : 'bg-white/5 border border-transparent hover:bg-white/10'
@@ -121,7 +121,7 @@ export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigM
                   <button
                     key={t.value}
                     onClick={() => setTheme(t.value)}
-                    className={`flex-1 h-10 rounded-xl transition-all ${
+                    className={`flex-1 h-12 rounded-xl transition-all touch-target ${
                       theme === t.value ? 'ring-2 ring-white ring-offset-1 ring-offset-[#111]' : ''
                     } bg-gradient-to-br ${t.colors}`}
                     title={t.label}
@@ -133,7 +133,7 @@ export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigM
             {/* Start Button */}
             <button
               onClick={() => onStart({ duration, sound, theme })}
-              className="w-full py-3 rounded-xl bg-[#4FACFE] text-white font-medium hover:bg-[#4FACFE]/90 transition-colors"
+              className="w-full py-4 rounded-xl bg-[#4FACFE] text-white font-medium hover:bg-[#4FACFE]/90 transition-colors touch-target min-h-[48px]"
             >
               开始专注
             </button>

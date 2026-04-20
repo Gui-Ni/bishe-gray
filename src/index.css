@@ -461,3 +461,58 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ==========================================
+   iPad / Touch Screen Optimizations
+   ========================================== */
+
+/* 防止触摸时选中文字 */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 确保触摸目标足够大 (最小44px iOS标准) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 触摸时显示高亮 */
+@media (hover: none) and (pointer: coarse) {
+  button:active,
+  .mode-card:active,
+  .soft-button:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+/* 禁用触摸高亮 */
+.no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 触摸滚动优化 */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* 拖拽时禁用触摸滚动 */
+.dragging {
+  touch-action: none;
+}
+
+/* 确保轨道式输入在触屏上足够大 */
+input[type="range"] {
+  min-height: 44px;
+}
+
+/* iPad横屏适配 */
+@media only screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  :root {
+    font-size: 16px;
+  }
+}

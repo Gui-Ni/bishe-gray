@@ -372,12 +372,17 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative h-screen flex flex-col items-center justify-center overflow-hidden w-full"
+      className="relative h-screen flex flex-col items-center justify-center overflow-hidden w-full select-none no-tap-highlight no-select"
       onMouseDown={() => {
         if (cabinMode === 'pose-confirm') setIsPressing(true);
       }}
       onMouseUp={() => setIsPressing(false)}
       onMouseLeave={() => setIsPressing(false)}
+      onTouchStart={() => {
+        if (cabinMode === 'pose-confirm') setIsPressing(true);
+      }}
+      onTouchEnd={() => setIsPressing(false)}
+      onTouchCancel={() => setIsPressing(false)}
     >
       {/* Monitor container - U-shaped monitor frame */}
       <div
@@ -526,13 +531,13 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                       initial={{ scale: 0, opacity: 0, x: ball.x, y: ball.y }}
                       animate={{ scale: ball.isConsumed ? 0 : ball.size, opacity: ball.isConsumed ? 0 : 1 }}
                       transition={{ duration: ball.isConsumed ? 0.3 : 0.8, ease: ball.isConsumed ? 'backIn' : 'easeOut' }}
-                      className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center"
+                      className="w-16 h-16 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
                       style={{ position: 'absolute' }}
                     >
                       <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
                         transition={{ duration: 1.5 + (ball.id % 2) * 0.2, repeat: Infinity }}
-                        className="w-8 h-8 rounded-full bg-[#4FACFE]/60 blur-[6px]"
+                        className="w-10 h-10 rounded-full bg-[#4FACFE]/60 blur-[6px]"
                       />
                     </motion.div>
                   )
@@ -563,10 +568,10 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: '48px',
-                    height: '48px',
-                    marginLeft: '-24px',
-                    marginTop: '-24px',
+                    width: '72px',
+                    height: '72px',
+                    marginLeft: '-36px',
+                    marginTop: '-36px',
                   }}
                 >
                   {/* Trail effect */}
@@ -577,13 +582,17 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                     className="absolute w-8 h-8 rounded-full bg-white/20 blur-[8px]"
                   />
                   <div
-                    className="w-full h-full rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center cursor-pointer pointer-events-auto hover:bg-white/30 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                    className="w-full h-full rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center cursor-pointer pointer-events-auto hover:bg-white/30 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] active:bg-white/30"
                     onMouseDown={(e) => handleSpotClick(e, spot.id)}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      handleSpotClick(e as unknown as React.MouseEvent, spot.id);
+                    }}
                   >
                     <motion.div
                       animate={{ scale: [1, 1.4, 1], opacity: [0.8, 0.3, 0.8] }}
                       transition={{ duration: 1.2, repeat: Infinity }}
-                      className="absolute w-4 h-4 bg-white rounded-full blur-[3px]"
+                      className="absolute w-6 h-6 bg-white rounded-full blur-[3px]"
                     />
                   </div>
                 </motion.div>

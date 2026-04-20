@@ -53,7 +53,7 @@ export default function InspirationNotes({ onSave }: InspirationNotesProps) {
       </AnimatePresence>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 rounded-full bg-[#4FACFE]/20 border border-[#4FACFE]/30 hover:bg-[#4FACFE]/30 shadow-lg flex items-center justify-center text-xl hover:scale-110 transition-transform"
+        className="w-16 h-16 rounded-full bg-[#4FACFE]/20 border border-[#4FACFE]/30 hover:bg-[#4FACFE]/30 shadow-lg flex items-center justify-center text-2xl hover:scale-110 transition-transform touch-target"
         title="灵感笔记"
       >
         📝
