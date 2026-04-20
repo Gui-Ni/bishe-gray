@@ -56,7 +56,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
         exit={{ opacity: 0 }}
         className="min-h-screen flex items-center justify-center w-full p-4"
       >
-        <div className="relative w-[400px] h-[720px] max-h-[90vh] max-w-[95vw] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
           <div className="h-full pt-10 pb-6 px-4 flex flex-col items-center overflow-hidden">
             <StatsPanel onClose={() => setMobileState('home')} />
@@ -73,9 +73,9 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="min-h-screen flex items-center justify-center w-full p-4"
+        className="min-h-screen flex items-center justify-center w-full"
       >
-        <div className="relative w-[400px] h-[720px] max-h-[90vh] max-w-[95vw] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
           <div className="h-full pt-10 pb-6 px-4 flex flex-col items-center overflow-hidden">
             <SettingsPanel onClose={() => setMobileState('home')} />
@@ -90,13 +90,10 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center w-full p-4 no-select no-tap-highlight"
+      className="min-h-screen flex items-center justify-center w-full no-select no-tap-highlight"
     >
-      {/* Phone frame container - responsive sizing for iPad */}
-      <div className="relative w-[400px] h-[720px] max-h-[90vh] max-w-[95vw] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden
-        sm:max-w-[85vw] sm:w-[450px]
-        md:max-w-[70vw] md:w-[500px]
-        lg:max-w-[50vw] lg:w-[550px]">
+      {/* Phone frame container */}
+      <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
         {/* Phone notch */}
         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
 

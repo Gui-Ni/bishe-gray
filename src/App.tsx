@@ -193,8 +193,7 @@ export default function App() {
   return (
     <div className={`min-h-screen ${THEMES[sessionConfig.theme]} text-white selection:bg-[#4FACFE]/30 flex flex-col font-sans`}>
       {/* Navigation */}
-      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-2 h-12 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top
-        sm:h-14 md:h-16 lg:h-16">
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-2 h-12 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top">
         <button
           onClick={() => setView('cabin')}
           className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center justify-center gap-2 ${
