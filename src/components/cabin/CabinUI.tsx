@@ -323,9 +323,20 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     }
   }, [cabinMode]);
 
-  const handleSpotClick = useCallback((e: React.MouseEvent, id: number) => {
+  const handleSpotClick = useCallback((e: React.MouseEvent | React.TouchEvent, id: number) => {
     if (cabinMode !== 'inspiration') return;
-    const newRipple = { id: rippleIdRef.current++, x: e.clientX, y: e.clientY };
+
+    // Get coordinates from either mouse or touch event
+    let clientX: number, clientY: number;
+    if ('touches' in e) {
+      clientX = e.touches[0]?.clientX ?? e.changedTouches[0]?.clientX ?? 0;
+      clientY = e.touches[0]?.clientY ?? e.changedTouches[0]?.clientY ?? 0;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
+    const newRipple = { id: rippleIdRef.current++, x: clientX, y: clientY };
     setRipples((prev) => [...prev, newRipple]);
     setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== newRipple.id)), 2500);
 
@@ -373,12 +384,14 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="relative h-screen flex flex-col items-center justify-center overflow-hidden w-full select-none no-tap-highlight no-select"
+      style={{ touchAction: 'none' }}
       onMouseDown={() => {
         if (cabinMode === 'pose-confirm') setIsPressing(true);
       }}
       onMouseUp={() => setIsPressing(false)}
       onMouseLeave={() => setIsPressing(false)}
-      onTouchStart={() => {
+      onTouchStart={(e) => {
+        e.preventDefault();
         if (cabinMode === 'pose-confirm') setIsPressing(true);
       }}
       onTouchEnd={() => setIsPressing(false)}
@@ -387,7 +400,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       {/* Monitor container - U-shaped monitor frame */}
       <div
         className="absolute inset-x-8 top-24 bottom-24 rounded-3xl overflow-hidden"
-        style={{ zIndex: 10, position: 'absolute' }}
+        style={{ zIndex: 10, position: 'absolute', touchAction: 'none' }}
       >
         {/* Background with curved bottom using CSS mask */}
         <div
@@ -518,6 +531,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                       drag
                       dragConstraints={{ left: -180, right: 180, top: -150, bottom: 150 }}
                       dragMomentum={false}
+                      dragElastic={0}
                       onDragEnd={(_, info) => {
                         // Get the center of the container (where the logo is)
                         const centerX = window.innerWidth / 2;
@@ -528,11 +542,13 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                           setPushProgress(100);
                         }
                       }}
-                      initial={{ scale: 0, opacity: 0, x: ball.x, y: ball.y }}
+                      x={ball.x}
+                      y={ball.y}
+                      initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: ball.isConsumed ? 0 : ball.size, opacity: ball.isConsumed ? 0 : 1 }}
                       transition={{ duration: ball.isConsumed ? 0.3 : 0.8, ease: ball.isConsumed ? 'backIn' : 'easeOut' }}
                       className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
-                      style={{ position: 'absolute' }}
+                      style={{ position: 'absolute', touchAction: 'none' }}
                     >
                       <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
@@ -584,9 +600,10 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                   <div
                     className="w-full h-full rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center cursor-pointer pointer-events-auto hover:bg-white/30 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] active:bg-white/30"
                     onMouseDown={(e) => handleSpotClick(e, spot.id)}
+                    onTouchStart={(e) => e.preventDefault()}
                     onTouchEnd={(e) => {
                       e.preventDefault();
-                      handleSpotClick(e as unknown as React.MouseEvent, spot.id);
+                      handleSpotClick(e, spot.id);
                     }}
                   >
                     <motion.div
@@ -632,6 +649,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
             <button
               onClick={(e) => { e.stopPropagation(); handleVoiceSuccess(); }}
               onMouseDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleVoiceSuccess(); }}
               className="absolute bottom-[12%] left-[2%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
             >
               {recordFeedback ? (
@@ -652,6 +670,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
           {(cabinMode === 'recharge' || cabinMode === 'inspiration') && (
             <button
               onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toggleFullscreen(); }}
               className="absolute bottom-[12%] right-[5%] w-10 h-10 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10 flex items-center justify-center"
               title={isFullscreen ? '退出全屏' : '全屏'}
             >
