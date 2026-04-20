@@ -650,7 +650,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
               onClick={(e) => { e.stopPropagation(); handleVoiceSuccess(); }}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleVoiceSuccess(); }}
-              className="absolute bottom-[12%] left-[2%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
+              className="absolute bottom-[12%] left-[8%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
             >
               {recordFeedback ? (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 text-[#4FACFE]">
