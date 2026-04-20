@@ -327,37 +327,27 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
         className="absolute inset-x-8 top-16 bottom-24 rounded-3xl overflow-hidden"
         style={{ zIndex: 10, position: 'absolute' }}
       >
-        {/* SVG mask for U-shape with border */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          style={{ display: 'block' }}
-        >
-          <defs>
-            <mask id="monitorCutout" maskUnits="objectBoundingBox">
-              <rect x="0" y="0" width="100%" height="100%" fill="white" />
-              {/* Rounded U-shape cutout using path with arcs */}
-              <path d="M 0.1,0.5 Q 0.1,1 0.5,1 Q 0.9,1 0.9,0.5 L 0.9,0.5 L 0.1,0.5 Z" fill="black" />
-            </mask>
-          </defs>
-          {/* Background with U-shape cutout - use theme color */}
-          <rect
-            x="0" y="0"
-            width="100%" height="100%"
-            fill={THEMES[sessionConfig.theme]}
-            fillOpacity="0.95"
-            mask="url(#monitorCutout)"
-          />
-          {/* Border stroke with rounded corners */}
-          <rect
-            x="0" y="0"
-            width="100%" height="100%"
-            fill="none"
-            stroke="rgba(255,255,255,0.15)"
-            strokeWidth="2"
-            rx="24"
-            mask="url(#monitorCutout)"
-          />
-        </svg>
+        {/* Background with curved bottom using CSS mask */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: THEMES[sessionConfig.theme],
+            opacity: 0.95,
+            borderRadius: '24px 24px 0 0',
+            WebkitMaskImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M 0 0 L 100 0 L 100 100 L 90 100 Q 50 75 10 100 L 0 100 Z' fill='black'/%3E%3C/svg%3E\")",
+            maskImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M 0 0 L 100 0 L 100 100 L 90 100 Q 50 75 10 100 L 0 100 Z' fill='black'/%3E%3C/svg%3E\")",
+            WebkitMaskSize: '100% 100%',
+            maskSize: '100% 100%',
+          }}
+        />
+        {/* Border overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            borderRadius: '24px 24px 0 0',
+            boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.15)',
+          }}
+        />
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-[#4FACFE]/5 pointer-events-none" />
 
@@ -422,11 +412,11 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="absolute bottom-[20%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20 whitespace-nowrap pointer-events-none"
+                className="absolute bottom-[32%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20 whitespace-nowrap pointer-events-none"
               >
                 <motion.div animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 3, repeat: Infinity }}>
                   <span className="text-white/30 text-xs tracking-[0.5em] font-light">
-                    等待手机端唤醒...
+                    等待手机端唤醒
                   </span>
                 </motion.div>
               </motion.div>

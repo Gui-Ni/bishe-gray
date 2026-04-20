@@ -4,10 +4,13 @@ import { Zap, Sparkles, Power, BarChart3, Settings } from 'lucide-react';
 import SyncLogo from '../shared/SyncLogo';
 import StatsPanel from './StatsPanel';
 import SettingsPanel from './SettingsPanel';
+import ConfigModal from './ConfigModal';
 import {
   CabinMode,
   MobileState,
   SessionResult,
+  SoundType,
+  ThemeType,
 } from '../../types';
 
 // Props interface
@@ -20,6 +23,10 @@ interface MobileUIProps {
   sessionResult: SessionResult | null;
   endSession: () => void;
   generatedCards: string[];
+  configMode: CabinMode;
+  showConfig: boolean;
+  onConfigStart: (config: { duration: number; sound: SoundType; theme: ThemeType }) => void;
+  onCloseConfig: () => void;
 }
 
 /**
@@ -35,6 +42,10 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
   sessionResult,
   endSession,
   generatedCards,
+  configMode,
+  showConfig,
+  onConfigStart,
+  onCloseConfig,
 }) => {
   // Render stats panel
   if (mobileState === 'stats') {
@@ -45,7 +56,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
         exit={{ opacity: 0 }}
         className="min-h-screen flex items-center justify-center w-full"
       >
-        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[10px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
           <div className="h-full pt-10 pb-6 px-4 flex flex-col items-center overflow-hidden">
             <StatsPanel onClose={() => setMobileState('home')} />
@@ -64,7 +75,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
         exit={{ opacity: 0 }}
         className="min-h-screen flex items-center justify-center w-full"
       >
-        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[10px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+        <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
           <div className="h-full pt-10 pb-6 px-4 flex flex-col items-center overflow-hidden">
             <SettingsPanel onClose={() => setMobileState('home')} />
@@ -82,7 +93,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
       className="min-h-screen flex items-center justify-center w-full"
     >
       {/* Phone frame container */}
-      <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[10px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+      <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
         {/* Phone notch */}
         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
 
@@ -107,7 +118,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             className="mb-4 mt-2"
           >
-            <SyncLogo size="large" className="scale-50" />
+            <SyncLogo className="scale-[0.6]" />
           </motion.div>
 
           {/* Title - larger, moved up */}
@@ -175,7 +186,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             className="mb-4"
           >
-            <SyncLogo size="large" className="scale-50" />
+            <SyncLogo className="scale-[0.6]" />
           </motion.div>
 
           <div className="text-center mb-6">
@@ -190,9 +201,8 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             {/* Recharge mode */}
             <motion.button
               onClick={() => enterCabin('recharge')}
-              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative overflow-hidden"
+              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative"
             >
               <div className="w-10 h-10 rounded-full bg-[#4FACFE]/10 flex items-center justify-center mb-1">
                 <Zap size={18} className="text-[#4FACFE]" />
@@ -210,9 +220,8 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             {/* Inspiration mode */}
             <motion.button
               onClick={() => enterCabin('inspiration')}
-              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative overflow-hidden"
+              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative"
             >
               <div className="w-10 h-10 rounded-full bg-[#4FACFE]/10 flex items-center justify-center mb-1">
                 <Sparkles size={18} className="text-[#4FACFE]" />
@@ -251,7 +260,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute w-40 h-40 bg-[#4FACFE] rounded-full blur-[40px]"
             />
-            <SyncLogo size="large" className="scale-50" isSyncing={true} />
+            <SyncLogo className="scale-[0.6]" isSyncing={true} />
           </div>
 
           <h2 className="text-lg font-light tracking-[0.2em] text-white mb-2 shadow-black drop-shadow-lg" style={{ paddingLeft: '0.2em' }}>
@@ -287,7 +296,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             transition={{ duration: 4, repeat: Infinity }}
             className="mb-4 w-full flex justify-center"
           >
-            <SyncLogo size="large" className="scale-50" />
+            <SyncLogo className="scale-[0.6]" />
           </motion.div>
 
           <h2 className="text-base text-white/90 tracking-[0.3em] font-light mb-4" style={{ paddingLeft: '0.3em' }}>
@@ -388,6 +397,14 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
           </div>
         </motion.div>
       )}
+
+      {/* Config Modal - inside phone frame */}
+      <ConfigModal
+        mode={configMode === 'recharge' ? 'recharge' : 'inspiration'}
+        isOpen={showConfig}
+        onStart={onConfigStart}
+        onCancel={onCloseConfig}
+      />
         </div>
       </div>
     </motion.div>

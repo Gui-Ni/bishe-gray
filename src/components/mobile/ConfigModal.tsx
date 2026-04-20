@@ -41,14 +41,14 @@ export default function ConfigModal({ mode, isOpen, onStart, onCancel }: ConfigM
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-6"
+          className="absolute inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="max-w-sm w-full bg-[#111] rounded-2xl p-6 border border-white/10"
+            className="max-w-sm w-full bg-[#111] rounded-2xl p-5 border border-white/10"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">

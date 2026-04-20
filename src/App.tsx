@@ -4,7 +4,6 @@ import { Smartphone, Monitor } from 'lucide-react';
 import { CabinUI } from './components/cabin';
 import { MobileUI } from './components/mobile';
 import { AchievementModal } from './components/shared';
-import ConfigModal from './components/mobile/ConfigModal';
 import { useSession } from './contexts';
 import { CabinMode, MobileState, SessionResult, ViewType, Achievement, SoundType, ThemeType } from './types';
 
@@ -194,13 +193,13 @@ export default function App() {
   return (
     <div className={`min-h-screen ${THEMES[sessionConfig.theme]} text-white selection:bg-[#4FACFE]/30 flex flex-col font-sans`}>
       {/* Navigation */}
-      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-1.5 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top">
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-2 h-12 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top">
         <button
           onClick={() => setView('cabin')}
-          className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center gap-2 ${
+          className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center justify-center gap-2 ${
             view === 'cabin'
               ? 'bg-[#4FACFE] text-white shadow-[0_0_20px_rgba(79,172,254,0.3)]'
-              : 'text-white/40 hover:text-white/80'
+              : 'text-white/50 hover:text-white'
           }`}
         >
           <Monitor size={16} />
@@ -208,10 +207,10 @@ export default function App() {
         </button>
         <button
           onClick={() => setView('mobile')}
-          className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center gap-2 ${
+          className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center justify-center gap-2 ${
             view === 'mobile'
               ? 'bg-[#4FACFE] text-white shadow-[0_0_20px_rgba(79,172,254,0.3)]'
-              : 'text-white/40 hover:text-white/80'
+              : 'text-white/50 hover:text-white'
           }`}
         >
           <Smartphone size={16} />
@@ -243,6 +242,10 @@ export default function App() {
             sessionResult={sessionResult}
             endSession={endSession}
             generatedCards={generatedCards}
+            configMode={configMode}
+            showConfig={showConfig}
+            onConfigStart={handleConfigStart}
+            onCloseConfig={() => setShowConfig(false)}
           />
         )}
       </AnimatePresence>
@@ -277,14 +280,6 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-
-      {/* Config modal */}
-      <ConfigModal
-        mode={configMode}
-        isOpen={showConfig}
-        onStart={handleConfigStart}
-        onCancel={() => setShowConfig(false)}
-      />
     </div>
   );
 }

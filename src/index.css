@@ -335,7 +335,6 @@ body {
 }
 
 .mode-card:hover {
-  transform: scale(1.02) translateY(-4px);
   box-shadow: 0 0 30px rgba(79, 172, 254, 0.2);
   border-color: rgba(79, 172, 254, 0.4);
 }

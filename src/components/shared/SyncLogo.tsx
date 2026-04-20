@@ -37,7 +37,6 @@ const SyncLogo: React.FC<SyncLogoProps> = ({
     >
       <div
         className="flex items-center justify-center relative"
-        style={{ transform: 'translateX(-4%)' }}
       >
         {/* Main gradient circle */}
         <motion.div
