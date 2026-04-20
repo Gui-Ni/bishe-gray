@@ -101,61 +101,61 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             <div className="fluid-blob fluid-blob-2" />
           </div>
 
-          {/* Animated logo - smaller size, moved up */}
+          {/* Animated logo - large size, properly positioned */}
           <motion.div
             animate={{ scale: [1, 1.02, 1], opacity: [0.8, 1, 0.8] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            className="mb-2 mt-[-20px]"
+            className="mb-4 mt-2"
           >
-            <SyncLogo size="small" />
+            <SyncLogo size="large" className="scale-50" />
           </motion.div>
 
-          {/* Title - smaller */}
+          {/* Title - larger, moved up */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex flex-col items-center mb-4"
+            className="flex flex-col items-center mb-4 mt-[-10px]"
           >
-            <h1 className="text-4xl font-bold tracking-[0.2em] sync-text-gradient mb-1" style={{ paddingLeft: '0.2em' }}>
+            <h1 className="text-5xl font-bold tracking-[0.2em] sync-text-gradient mb-2" style={{ paddingLeft: '0.2em' }}>
               心跃
             </h1>
-            <h2 className="text-2xl font-bold tracking-[0.3em] sync-text-gradient opacity-90" style={{ paddingLeft: '0.3em' }}>
+            <h2 className="text-3xl font-bold tracking-[0.3em] sync-text-gradient opacity-90" style={{ paddingLeft: '0.3em' }}>
               SYNC
             </h2>
           </motion.div>
 
-          {/* Enter button - smaller */}
+          {/* Enter button - larger, moved up */}
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
             onClick={() => setMobileState('modeSelect')}
-            className="px-8 py-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl text-white font-light tracking-[0.3em] hover:bg-white/10 transition-all mb-4"
-            style={{ paddingLeft: 'calc(2rem + 0.3em)' }}
+            className="px-10 py-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl text-white font-light tracking-[0.3em] hover:bg-white/10 transition-all mb-4 text-sm"
+            style={{ paddingLeft: 'calc(2.5rem + 0.3em)' }}
           >
             进入系统
           </motion.button>
 
-          {/* Quick actions - smaller */}
+          {/* Quick actions - larger, moved up */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="flex gap-4 mt-4"
+            className="flex gap-6"
           >
             <button
               onClick={() => setMobileState('stats')}
-              className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-xs"
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm"
             >
-              <BarChart3 size={14} />
+              <BarChart3 size={16} />
               <span className="tracking-widest">统计</span>
             </button>
             <button
               onClick={() => setMobileState('settings')}
-              className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-xs"
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm"
             >
-              <Settings size={14} />
+              <Settings size={16} />
               <span className="tracking-widest">设置</span>
             </button>
           </motion.div>
@@ -169,13 +169,13 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-md flex flex-col items-center overflow-y-auto hide-scrollbar py-4"
         >
-          {/* Logo - smaller */}
+          {/* Logo - large */}
           <motion.div
             animate={{ scale: [1, 1.02, 1], opacity: [0.8, 1, 0.8] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             className="mb-4"
           >
-            <SyncLogo size="small" />
+            <SyncLogo size="large" className="scale-50" />
           </motion.div>
 
           <div className="text-center mb-6">
@@ -251,7 +251,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute w-40 h-40 bg-[#4FACFE] rounded-full blur-[40px]"
             />
-            <SyncLogo size="small" isSyncing={true} />
+            <SyncLogo size="large" className="scale-50" isSyncing={true} />
           </div>
 
           <h2 className="text-lg font-light tracking-[0.2em] text-white mb-2 shadow-black drop-shadow-lg" style={{ paddingLeft: '0.2em' }}>
@@ -287,7 +287,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             transition={{ duration: 4, repeat: Infinity }}
             className="mb-4 w-full flex justify-center"
           >
-            <SyncLogo size="small" />
+            <SyncLogo size="large" className="scale-50" />
           </motion.div>
 
           <h2 className="text-base text-white/90 tracking-[0.3em] font-light mb-4" style={{ paddingLeft: '0.3em' }}>

@@ -1,0 +1,17 @@
+- generic [ref=e3]:
+  - generic [ref=e7]: 未连接
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - heading "SYNC · 心跃" [level=1] [ref=e10]
+      - paragraph [ref=e11]: 舱内体验遥控器
+    - generic [ref=e12]:
+      - button "扫描舱内二维码 舱内大屏显示连接码，扫码连接" [ref=e13]:
+        - img [ref=e15]
+        - generic [ref=e21]:
+          - generic [ref=e22]: 扫描舱内二维码
+          - generic [ref=e23]: 舱内大屏显示连接码，扫码连接
+        - img [ref=e24]
+      - generic [ref=e28]: 或
+      - generic [ref=e30]:
+        - textbox "输入6位连接码" [ref=e31]
+        - button "加入体验" [disabled] [ref=e32]

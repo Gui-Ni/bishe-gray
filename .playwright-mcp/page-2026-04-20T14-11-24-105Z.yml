@@ -1,0 +1,8 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - heading "SYNC · 心跃" [level=1] [ref=e15]
+    - paragraph [ref=e16]: 舱内体验系统
+    - button "生成连接码" [ref=e17]:
+      - img [ref=e18]
+      - text: 生成连接码
+  - generic [ref=e27]: 等待连接
