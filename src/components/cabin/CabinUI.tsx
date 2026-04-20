@@ -324,78 +324,38 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     >
       {/* Monitor container - U-shaped monitor frame */}
       <div
-        className="absolute inset-x-8 top-16 bottom-24 overflow-hidden"
+        className="absolute inset-x-8 top-16 bottom-24 rounded-3xl overflow-hidden"
         style={{ zIndex: 10, position: 'absolute' }}
       >
-        {/* SVG U-shape using path with rounded corners and smooth ellipse cutout */}
+        {/* SVG mask for U-shape with border */}
         <svg
           className="absolute inset-0 w-full h-full"
           style={{ display: 'block' }}
         >
           <defs>
-            <clipPath id="uShapeClip">
-              <path
-                d="
-                  M 0.04,0
-                  L 0.96,0
-                  Q 0.995,0 0.995,0.04
-                  L 0.995,0.72
-                  Q 0.995,0.80 0.96,0.80
-                  L 0.64,0.80
-                  Q 0.62,0.80 0.60,0.77
-                  Q 0.58,0.74 0.60,0.70
-                  Q 0.62,0.66 0.64,0.66
-                  Q 0.62,0.66 0.60,0.63
-                  A 0.36,0.20 0 0 0 0.40,0.63
-                  Q 0.38,0.66 0.36,0.66
-                  Q 0.38,0.66 0.40,0.70
-                  Q 0.42,0.74 0.40,0.77
-                  Q 0.38,0.80 0.36,0.80
-                  L 0.04,0.80
-                  Q 0.005,0.80 0.005,0.72
-                  L 0.005,0.04
-                  Q 0.005,0 0.04,0
-                  Z
-                "
-              />
-            </clipPath>
+            <mask id="monitorCutout" maskUnits="objectBoundingBox">
+              <rect x="0" y="0" width="100%" height="100%" fill="white" />
+              {/* Rounded U-shape cutout using path with arcs */}
+              <path d="M 0.1,0.5 Q 0.1,1 0.5,1 Q 0.9,1 0.9,0.5 L 0.9,0.5 L 0.1,0.5 Z" fill="black" />
+            </mask>
           </defs>
-          {/* Background with U-shape */}
+          {/* Background with U-shape cutout - use theme color */}
           <rect
             x="0" y="0"
             width="100%" height="100%"
             fill={THEMES[sessionConfig.theme]}
             fillOpacity="0.95"
-            clipPath="url(#uShapeClip)"
+            mask="url(#monitorCutout)"
           />
-          {/* Border stroke with rounded line joins */}
-          <path
-            d="
-              M 0.04,0
-              L 0.96,0
-              Q 0.995,0 0.995,0.04
-              L 0.995,0.72
-              Q 0.995,0.80 0.96,0.80
-              L 0.64,0.80
-              Q 0.62,0.80 0.60,0.77
-              Q 0.58,0.74 0.60,0.70
-              Q 0.62,0.66 0.64,0.66
-              Q 0.62,0.66 0.60,0.63
-              A 0.36,0.20 0 0 0 0.40,0.63
-              Q 0.38,0.66 0.36,0.66
-              Q 0.38,0.66 0.40,0.70
-              Q 0.42,0.74 0.40,0.77
-              Q 0.38,0.80 0.36,0.80
-              L 0.04,0.80
-              Q 0.005,0.80 0.005,0.72
-              L 0.005,0.04
-              Q 0.005,0 0.04,0
-              Z
-            "
+          {/* Border stroke with rounded corners */}
+          <rect
+            x="0" y="0"
+            width="100%" height="100%"
             fill="none"
             stroke="rgba(255,255,255,0.15)"
             strokeWidth="2"
-            strokeLinejoin="round"
+            rx="24"
+            mask="url(#monitorCutout)"
           />
         </svg>
         {/* Gradient overlay */}
