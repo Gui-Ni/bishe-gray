@@ -156,18 +156,18 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="flex gap-6 touch-target"
+            className="flex gap-6"
           >
             <button
               onClick={() => setMobileState('stats')}
-              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm touch-target min-h-[44px] min-w-[44px]"
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm"
             >
               <BarChart3 size={16} />
               <span className="tracking-widest">统计</span>
             </button>
             <button
               onClick={() => setMobileState('settings')}
-              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm touch-target min-h-[44px] min-w-[44px]"
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 text-sm"
             >
               <Settings size={16} />
               <span className="tracking-widest">设置</span>
@@ -205,7 +205,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             <motion.button
               onClick={() => enterCabin('recharge')}
               whileTap={{ scale: 0.98 }}
-              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative touch-target min-h-[80px]"
+              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative"
             >
               <div className="w-10 h-10 rounded-full bg-[#4FACFE]/10 flex items-center justify-center mb-1">
                 <Zap size={18} className="text-[#4FACFE]" />
@@ -224,7 +224,7 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
             <motion.button
               onClick={() => enterCabin('inspiration')}
               whileTap={{ scale: 0.98 }}
-              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative touch-target min-h-[80px]"
+              className="mode-card w-full bg-[#1A1A1A] border border-white/10 rounded-2xl p-4 flex flex-col items-start gap-2 relative"
             >
               <div className="w-10 h-10 rounded-full bg-[#4FACFE]/10 flex items-center justify-center mb-1">
                 <Sparkles size={18} className="text-[#4FACFE]" />

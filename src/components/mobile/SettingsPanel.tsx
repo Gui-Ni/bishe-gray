@@ -88,7 +88,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
             max="100"
             value={settings.noiseVolume}
             onChange={(e) => setSettings((s) => ({ ...s, noiseVolume: Number(e.target.value) }))}
-            className="w-full h-8 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#4FACFE] touch-target"
+            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#4FACFE]"
           />
         </div>
 
