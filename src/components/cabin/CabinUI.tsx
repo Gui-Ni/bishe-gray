@@ -542,9 +542,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                           setPushProgress(100);
                         }
                       }}
-                      x={ball.x}
-                      y={ball.y}
-                      initial={{ scale: 0, opacity: 0 }}
+                      initial={{ scale: 0, opacity: 0, x: ball.x, y: ball.y }}
                       animate={{ scale: ball.isConsumed ? 0 : ball.size, opacity: ball.isConsumed ? 0 : 1 }}
                       transition={{ duration: ball.isConsumed ? 0.3 : 0.8, ease: ball.isConsumed ? 'backIn' : 'easeOut' }}
                       className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
