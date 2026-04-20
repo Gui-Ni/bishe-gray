@@ -23,6 +23,11 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* Safe area for mobile devices with notch */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
 /* 优化后的 SYNC Logo 样式 - 去除 absolute，使用 Flex */
 .sync-totem {
   position: relative;
@@ -42,7 +47,7 @@ body {
 
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.85; filter: blur(0px); }
-  50% { transform: scale(1.05); opacity: 1; filter: blur(1px); }
+  50% { transform: scale(1.02); opacity: 1; filter: blur(1px); }
 }
 
 /* Glassmorphism 卡片 */
@@ -233,4 +238,227 @@ body {
   background: linear-gradient(to right, #4FACFE, #FFFFFF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* ==========================================
+   Enhanced Animations & Micro-interactions
+   ========================================== */
+
+/* 能量球收集爆发动画 */
+@keyframes collect-burst {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.8); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.collect-burst {
+  animation: collect-burst 0.6s ease-out forwards;
+}
+
+/* 卡片弹跳动画 */
+@keyframes card-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.card-pop {
+  animation: card-pop 0.4s ease-out forwards;
+}
+
+/* 按钮按压反馈 */
+.btn-press {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-press:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 边缘发光效果 - 收集成功时 */
+@keyframes edge-glow {
+  0% { box-shadow: inset 0 0 0 0 rgba(79, 172, 254, 0); }
+  50% { box-shadow: inset 0 0 60px 10px rgba(79, 172, 254, 0.3); }
+  100% { box-shadow: inset 0 0 0 0 rgba(79, 172, 254, 0); }
+}
+
+.edge-glow {
+  animation: edge-glow 1s ease-out forwards;
+}
+
+/* 成就解锁动画 */
+@keyframes achievement-unlock {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); }
+  80% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.achievement-unlock {
+  animation: achievement-unlock 0.5s ease-out forwards;
+}
+
+/* 成就解锁烟花效果 */
+@keyframes confetti-fall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s ease-in forwards;
+}
+
+/* 粒子拖尾效果 */
+.particle-trail {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(79, 172, 254, 0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particle-fade 0.5s ease-out forwards;
+}
+
+@keyframes particle-fade {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* 模式卡片 hover 效果 */
+.mode-card {
+  transition: all 0.3s ease;
+}
+
+.mode-card:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow: 0 0 30px rgba(79, 172, 254, 0.2);
+  border-color: rgba(79, 172, 254, 0.4);
+}
+
+/* 浮动粒子背景 */
+@keyframes float-particle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
+  75% { transform: translateY(-30px) translateX(5px); opacity: 0.5; }
+}
+
+.float-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(79, 172, 254, 0.5);
+  border-radius: 50%;
+  animation: float-particle 8s ease-in-out infinite;
+}
+
+/* 加载骨架屏动画 */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* 弧形屏幕呼吸发光 */
+@keyframes arc-pulse {
+  0%, 100% { border-color: rgba(79, 172, 254, 0.1); }
+  50% { border-color: rgba(79, 172, 254, 0.3); }
+}
+
+.arc-pulse {
+  animation: arc-pulse 4s ease-in-out infinite;
+}
+
+/* 进度条渐变动画 */
+@keyframes progress-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, transparent 0%, rgba(79, 172, 254, 0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 2s linear infinite;
+}
+
+/* 文字打字机效果 */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(20) forwards;
+}
+
+/* 缩放脉冲效果 */
+@keyframes scale-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.scale-pulse {
+  animation: scale-pulse 2s ease-in-out infinite;
+}
+
+/* 渐入上移动画 */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* 渐入缩放动画 */
+@keyframes fade-in-scale {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.fade-in-scale {
+  animation: fade-in-scale 0.3s ease-out forwards;
+}
+
+/* 成功闪烁效果 */
+@keyframes success-flash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0); }
+  50% { box-shadow: 0 0 20px 5px rgba(79, 172, 254, 0.5); }
+}
+
+.success-flash {
+  animation: success-flash 0.5s ease-out;
+}
+
+/* 空状态摇摆动画 */
+@keyframes gentle-swing {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.gentle-swing {
+  transform-origin: top center;
+  animation: gentle-swing 3s ease-in-out infinite;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
