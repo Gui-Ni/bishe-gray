@@ -18,7 +18,7 @@ export default function InspirationNotes({ onSave }: InspirationNotesProps) {
   };
 
   return (
-    <div className="absolute bottom-[12%] left-[35%] z-50">
+    <div className="absolute bottom-[18%] left-[2%] z-50">
       <AnimatePresence>
         {isOpen && (
           <motion.div

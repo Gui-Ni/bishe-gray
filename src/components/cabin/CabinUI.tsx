@@ -21,6 +21,14 @@ const SOUND_URLS: Record<SoundType, string> = {
   ocean: 'https://assets.mixkit.co/active_storage/sfx/2411/2411-preview.mp3',
 };
 
+// Theme gradients (must match App.tsx and ConfigModal.tsx)
+const THEMES: Record<ThemeType, string> = {
+  default: '#0a0a1a',
+  ocean: '#0a1628',
+  forest: '#0a1f0a',
+  night: '#0a0a1a',
+  aurora: '#1a0a2e',
+};
 
 // Utility function outside component
 const formatTime = (seconds: number) => {
@@ -263,8 +271,8 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     if (cabinMode === 'inspiration') {
       const generateSpots = () =>
         setRandomSpots([
-          { id: Math.random(), deg: -50 + Math.random() * 30, size: 0.5 + Math.random() * 0.5 },
-          { id: Math.random(), deg: 20 + Math.random() * 30, size: 0.5 + Math.random() * 0.5 },
+          { id: Math.random(), deg: -35 + Math.random() * 25, size: 0.5 + Math.random() * 0.5 },
+          { id: Math.random(), deg: 15 + Math.random() * 25, size: 0.5 + Math.random() * 0.5 },
         ]);
       generateSpots();
 
@@ -275,7 +283,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
             ...prev,
             {
               id: Math.random(),
-              deg: -60 + Math.random() * 120,
+              deg: -45 + Math.random() * 90,
               size: 0.4 + Math.random() * 0.6,
             },
           ];
@@ -296,7 +304,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       () =>
         setRandomSpots((prev) => [
           ...prev,
-          { id: Math.random(), deg: -70 + Math.random() * 140, size: 0.6 + Math.random() * 0.8 },
+          { id: Math.random(), deg: -45 + Math.random() * 90, size: 0.6 + Math.random() * 0.8 },
         ]),
       500
     );
@@ -316,7 +324,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     >
       {/* Monitor container - U-shaped monitor frame */}
       <div
-        className="absolute inset-x-8 top-16 bottom-24 rounded-2xl overflow-visible"
+        className="absolute inset-x-8 top-16 bottom-24 rounded-3xl overflow-hidden"
         style={{ zIndex: 10, position: 'absolute' }}
       >
         {/* SVG mask for U-shape with border */}
@@ -327,25 +335,26 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
           <defs>
             <mask id="monitorCutout" maskUnits="objectBoundingBox">
               <rect x="0" y="0" width="100%" height="100%" fill="white" />
-              <ellipse cx="50%" cy="100%" rx="40%" ry="25%" fill="black" />
+              {/* Rounded U-shape cutout using path with arcs */}
+              <path d="M 0.1,0.5 Q 0.1,1 0.5,1 Q 0.9,1 0.9,0.5 L 0.9,0.5 L 0.1,0.5 Z" fill="black" />
             </mask>
           </defs>
-          {/* Background with U-shape cutout */}
+          {/* Background with U-shape cutout - use theme color */}
           <rect
             x="0" y="0"
             width="100%" height="100%"
-            fill="#0a0a0a"
+            fill={THEMES[sessionConfig.theme]}
             fillOpacity="0.95"
             mask="url(#monitorCutout)"
           />
-          {/* Border stroke */}
+          {/* Border stroke with rounded corners */}
           <rect
-            x="0.5%" y="0.5%"
-            width="99%" height="99%"
+            x="0" y="0"
+            width="100%" height="100%"
             fill="none"
-            stroke="rgba(255,255,255,0.1)"
-            strokeWidth="1"
-            rx="16"
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth="2"
+            rx="24"
             mask="url(#monitorCutout)"
           />
         </svg>
@@ -426,7 +435,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
 
           {/* Pose confirmation hands - inside monitor */}
           {cabinMode === 'pose-confirm' && (
-            <div className="absolute bottom-[25%] left-1/2 -translate-x-1/2 flex items-center gap-24 z-40">
+            <div className="absolute bottom-[25%] left-1/2 -translate-x-1/2 flex items-center gap-48 z-40">
               <div className={`relative transition-all duration-300 ${isPressing ? 'scale-90 opacity-100' : 'scale-100 opacity-60'}`}>
                 <Hand size={64} className="text-[#4FACFE] -rotate-12" />
                 <motion.div
@@ -482,7 +491,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                   )
               )}
               <div
-                className="absolute w-48 h-48 rounded-full bg-[#4FACFE] blur-[40px] transition-all duration-75 pointer-events-none"
+                className="absolute w-32 h-32 rounded-full bg-[#4FACFE] blur-[30px] transition-all duration-75 pointer-events-none"
                 style={{ opacity: (pushProgress / 100) * 0.8, transform: `scale(${0.5 + (pushProgress / 100) * 0.8})` }}
               />
             </div>
@@ -521,7 +530,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
             <button
               onClick={(e) => { e.stopPropagation(); handleVoiceSuccess(); }}
               onMouseDown={(e) => e.stopPropagation()}
-              className="absolute bottom-[12%] left-[10%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
+              className="absolute bottom-[12%] left-[2%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
             >
               {recordFeedback ? (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 text-[#4FACFE]">
