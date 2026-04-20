@@ -92,7 +92,19 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       setIsFullscreen(!!document.fullscreenElement);
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+
+    // Prevent touch scrolling when in fullscreen mode
+    const handleTouchMove = (e: TouchEvent) => {
+      if (document.fullscreenElement) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
   }, []);
 
   const toggleFullscreen = () => {
