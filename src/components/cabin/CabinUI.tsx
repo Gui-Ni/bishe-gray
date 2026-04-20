@@ -78,6 +78,9 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   const [confirmProgress, setConfirmProgress] = useState(0);
   const [pushProgress, setPushProgress] = useState(0);
   const [balls, setBalls] = useState<EnergyBall[]>([]);
+  const [ballPositions, setBallPositions] = useState<Record<number, { x: number; y: number }>>({});
+  const [draggingBall, setDraggingBall] = useState<number | null>(null);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number; ballX: number; ballY: number } | null>(null);
   const [randomSpots, setRandomSpots] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
   const [burstParticles, setBurstParticles] = useState<{ id: number; x: number; y: number; angle: number; speed: number; size: number }[]>([]);
   const [, setRipples] = useState<Ripple[]>([]);
@@ -85,6 +88,8 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   const rippleIdRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Ref to track current drag position for synchronous access in mouseup
+  const currentDragPosRef = useRef<{ x: number; y: number } | null>(null);
 
   // Fullscreen handling
   useEffect(() => {
@@ -196,6 +201,166 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     setTimeout(() => setRecordFeedback(''), 3000);
   }, [addCard]);
 
+  // Custom touch handlers for energy ball dragging
+  const handleBallTouchStart = useCallback((e: React.TouchEvent, ballId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const pos = ballPositions[ballId];
+    const ball = balls.find((b) => b.id === ballId);
+    const ballX = pos?.x ?? ball?.x ?? 0;
+    const ballY = pos?.y ?? ball?.y ?? 0;
+    setDraggingBall(ballId);
+    setDragStart({ x: touch.clientX, y: touch.clientY, ballX, ballY });
+    currentDragPosRef.current = { x: ballX, y: ballY };
+    // Initialize ball position if not already tracked
+    if (!pos && ball) {
+      setBallPositions((prev) => ({ ...prev, [ballId]: { x: ball.x, y: ball.y } }));
+    }
+  }, [ballPositions, balls]);
+
+  const handleContainerTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!draggingBall || !dragStart) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStart.x;
+    const deltaY = touch.clientY - dragStart.y;
+    const newX = dragStart.ballX + deltaX;
+    const newY = dragStart.ballY + deltaY;
+
+    // Larger constraints for more freedom of movement (±800px like old dragConstraints)
+    const maxDrag = 800;
+    const constrainedX = Math.max(-maxDrag, Math.min(maxDrag, newX));
+    const constrainedY = Math.max(-maxDrag, Math.min(maxDrag, newY));
+
+    currentDragPosRef.current = { x: constrainedX, y: constrainedY };
+    setBallPositions((prev) => ({
+      ...prev,
+      [draggingBall]: { x: constrainedX, y: constrainedY },
+    }));
+  }, [draggingBall, dragStart]);
+
+  const handleContainerTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!draggingBall) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = currentDragPosRef.current;
+    if (pos) {
+      // Ball position is relative to container center via CSS transform
+      const dist = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2));
+      if (dist < 200) {
+        setBalls((prev) => prev.map((b) => (b.id === draggingBall ? { ...b, isConsumed: true } : b)));
+        setPushProgress(100);
+      }
+    }
+    currentDragPosRef.current = null;
+    setDraggingBall(null);
+    setDragStart(null);
+  }, [draggingBall]);
+
+  // Mouse event handlers for desktop testing
+  const handleBallMouseDown = useCallback((e: React.MouseEvent, ballId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = ballPositions[ballId];
+    const ball = balls.find((b) => b.id === ballId);
+    const ballX = pos?.x ?? ball?.x ?? 0;
+    const ballY = pos?.y ?? ball?.y ?? 0;
+    setDraggingBall(ballId);
+    setDragStart({ x: e.clientX, y: e.clientY, ballX, ballY });
+    currentDragPosRef.current = { x: ballX, y: ballY };
+    // Initialize ball position if not already tracked
+    if (!pos && ball) {
+      setBallPositions((prev) => ({ ...prev, [ballId]: { x: ball.x, y: ball.y } }));
+    }
+  }, [ballPositions, balls]);
+
+  const handleContainerMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!draggingBall || !dragStart) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    const newX = dragStart.ballX + deltaX;
+    const newY = dragStart.ballY + deltaY;
+
+    // Larger constraints for more freedom of movement (±800px)
+    const maxDrag = 800;
+    const constrainedX = Math.max(-maxDrag, Math.min(maxDrag, newX));
+    const constrainedY = Math.max(-maxDrag, Math.min(maxDrag, newY));
+
+    setBallPositions((prev) => ({
+      ...prev,
+      [draggingBall]: { x: constrainedX, y: constrainedY },
+    }));
+  }, [draggingBall, dragStart]);
+
+  const handleContainerMouseUp = useCallback((e: React.MouseEvent) => {
+    if (!draggingBall) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = ballPositions[draggingBall];
+    if (pos) {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const dist = Math.sqrt(Math.pow(pos.x - centerX, 2) + Math.pow(pos.y - centerY, 2));
+      if (dist < 100) {
+        setBalls((prev) => prev.map((b) => (b.id === draggingBall ? { ...b, isConsumed: true } : b)));
+        setPushProgress(100);
+      }
+    }
+    setDraggingBall(null);
+    setDragStart(null);
+  }, [draggingBall, ballPositions]);
+
+  // Global mouse handlers for dragging -统一处理 collection 逻辑
+  useEffect(() => {
+    if (!draggingBall) return;
+
+    const handleGlobalMouseUp = () => {
+      // Use ref for synchronous access to current position
+      const pos = currentDragPosRef.current;
+      if (pos) {
+        // Ball position is relative to container center via CSS transform
+        const dist = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2));
+        if (dist < 200) {
+          setBalls((prev) => prev.map((b) => (b.id === draggingBall ? { ...b, isConsumed: true } : b)));
+          setPushProgress(100);
+        }
+      }
+      currentDragPosRef.current = null;
+      setDraggingBall(null);
+      setDragStart(null);
+    };
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!draggingBall || !dragStart) return;
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      const newX = dragStart.ballX + deltaX;
+      const newY = dragStart.ballY + deltaY;
+
+      const maxDrag = 800;
+      const constrainedX = Math.max(-maxDrag, Math.min(maxDrag, newX));
+      const constrainedY = Math.max(-maxDrag, Math.min(maxDrag, newY));
+
+      // Update ref synchronously for use in mouseup
+      currentDragPosRef.current = { x: constrainedX, y: constrainedY };
+      setBallPositions((prev) => ({
+        ...prev,
+        [draggingBall]: { x: constrainedX, y: constrainedY },
+      }));
+    };
+
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+    };
+  }, [draggingBall, dragStart, ballPositions]);
+
   // Pose confirmation progress
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -283,10 +448,26 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       // Only clear if there are balls to clear (avoid unnecessary state updates)
       if (balls.length > 0) {
         setBalls([]);
+        setBallPositions({});
         setPushProgress(0);
       }
     }
   }, [cabinMode, balls]);
+
+  // Sync ball positions when balls are generated
+  useEffect(() => {
+    if (balls.length > 0) {
+      const newPositions: Record<number, { x: number; y: number }> = {};
+      balls.forEach((b) => {
+        if (!ballPositions[b.id]) {
+          newPositions[b.id] = { x: b.x, y: b.y };
+        }
+      });
+      if (Object.keys(newPositions).length > 0) {
+        setBallPositions((prev) => ({ ...prev, ...newPositions }));
+      }
+    }
+  }, [balls.length]);
 
   // Inspiration spot generation - constrained within U-frame
   useEffect(() => {
@@ -534,38 +715,31 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
 
           {/* Recharge: drag energy balls - inside monitor */}
           {cabinMode === 'recharge' && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
+            <div
+              className="absolute inset-0 flex items-center justify-center z-40"
+            >
               {balls.map(
                 (ball) =>
                   !ball.isConsumed && (
-                    <motion.div
+                    <div
                       key={ball.id}
-                      drag
-                      dragConstraints={{ left: -180, right: 180, top: -150, bottom: 150 }}
-                      dragMomentum={false}
-                      dragElastic={0}
-                      onDragEnd={(_, info) => {
-                        // Get the center of the container (where the logo is)
-                        const centerX = window.innerWidth / 2;
-                        const centerY = window.innerHeight / 2;
-                        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
-                        if (dist < 100) {
-                          setBalls((prev) => prev.map((b) => (b.id === ball.id ? { ...b, isConsumed: true } : b)));
-                          setPushProgress(100);
-                        }
+                      className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
+                      style={{
+                        position: 'absolute',
+                        transform: `translate(${(ballPositions[ball.id]?.x ?? ball.x)}px, ${(ballPositions[ball.id]?.y ?? ball.y)}px)`,
                       }}
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: ball.isConsumed ? 0 : ball.size, opacity: ball.isConsumed ? 0 : 1 }}
-                      transition={{ duration: ball.isConsumed ? 0.3 : 0.8, ease: ball.isConsumed ? 'backIn' : 'easeOut' }}
-                      className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing pointer-events-auto shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
-                      style={{ position: 'absolute', touchAction: 'none', transform: `translate(${ball.x}px, ${ball.y}px)` }}
+                      onMouseDown={(e) => handleBallMouseDown(e, ball.id)}
+                      onTouchStart={(e) => handleBallTouchStart(e, ball.id)}
+                      onMouseMove={(e) => handleContainerMouseMove(e)}
+                      onTouchMove={(e) => handleContainerTouchMove(e)}
+                      onTouchEnd={(e) => handleContainerTouchEnd(e)}
                     >
                       <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
                         transition={{ duration: 1.5 + (ball.id % 2) * 0.2, repeat: Infinity }}
                         className="w-8 h-8 rounded-full bg-[#4FACFE]/60 blur-[6px]"
                       />
-                    </motion.div>
+                    </div>
                   )
               )}
               <div
@@ -660,7 +834,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
               onClick={(e) => { e.stopPropagation(); handleVoiceSuccess(); }}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleVoiceSuccess(); }}
-              className="absolute bottom-[12%] left-[8%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
+              className="absolute bottom-[12%] left-[5%] flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl transition-all z-40 hover:bg-white/10"
             >
               {recordFeedback ? (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 text-[#4FACFE]">
