@@ -16,6 +16,7 @@ const DEFAULT_PROFILE: UserProfile = {
   lastSession: 0,
   totalCards: 0,
   maxCompletion: 0,
+  inspirationCards: [],
 };
 
 // Storage keys
@@ -23,6 +24,7 @@ const STORAGE_KEYS = {
   PROFILE: 'xinyue_profile',
   HISTORY: 'xinyue_history',
   SETTINGS: 'xinyue_settings',
+  INSPIRATION_CARDS: 'xinyue_inspiration_cards',
 } as const;
 
 // Achievement definitions
@@ -122,6 +124,11 @@ interface SessionContextValue {
   unlockedAchievements: Achievement[];
   checkAndUnlockAchievements: () => Achievement[];
 
+  // Inspiration cards
+  inspirationCards: string[];
+  addInspirationCard: (card: string) => void;
+  removeInspirationCard: (index: number) => void;
+
   // Utility
   resetAllData: () => void;
 }
@@ -138,6 +145,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   );
   const [sessionHistory, setSessionHistory] = useLocalStorage<SessionResult[]>(
     STORAGE_KEYS.HISTORY,
+    []
+  );
+  const [inspirationCards, setInspirationCards] = useLocalStorage<string[]>(
+    STORAGE_KEYS.INSPIRATION_CARDS,
     []
   );
 
@@ -232,6 +243,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = useCallback(() => {
     setProfile(DEFAULT_PROFILE);
     setSessionHistory([]);
+    setInspirationCards([]);
+  }, []);
+
+  // Add inspiration card
+  const addInspirationCard = useCallback((card: string) => {
+    setInspirationCards((prev) => [card, ...prev]);
+    setProfile((prev) => ({ ...prev, totalCards: prev.totalCards + 1 }));
+  }, []);
+
+  // Remove inspiration card
+  const removeInspirationCard = useCallback((index: number) => {
+    setInspirationCards((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // Memoize context value to prevent unnecessary re-renders
@@ -245,7 +268,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     unlockedAchievements,
     checkAndUnlockAchievements,
     resetAllData,
-  }), [profile, updateProfile, sessionHistory, addSessionResult, clearHistory, unlockedAchievements, checkAndUnlockAchievements, resetAllData]);
+    inspirationCards,
+    addInspirationCard,
+    removeInspirationCard,
+  }), [profile, updateProfile, sessionHistory, addSessionResult, clearHistory, unlockedAchievements, checkAndUnlockAchievements, resetAllData, inspirationCards, addInspirationCard, removeInspirationCard]);
 
   return (
     <SessionContext.Provider value={value}>

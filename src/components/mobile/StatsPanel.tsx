@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Clock, Sparkles, Target } from 'lucide-react';
 import { useSession } from '../../contexts';
 import AchievementBadge from '../shared/AchievementBadge';
+import InspirationLibrary from '../shared/InspirationLibrary';
 
 type Period = 'day' | 'week' | 'month';
 
@@ -14,9 +15,10 @@ interface StatsPanelProps {
  * Statistics panel showing user progress and history
  */
 const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
-  const { profile, sessionHistory, achievements, unlockedAchievements } = useSession();
+  const { profile, sessionHistory, achievements, unlockedAchievements, inspirationCards, removeInspirationCard } = useSession();
   const [period, setPeriod] = useState<Period>('week');
   const [showAllAchievements, setShowAllAchievements] = useState(false);
+  const [showInspirationLibrary, setShowInspirationLibrary] = useState(false);
 
   // Filter sessions by period
   const getFilteredSessions = () => {
@@ -218,7 +220,12 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
         {showAllAchievements ? (
           <div className="grid grid-cols-4 gap-2">
             {achievements.map((a) => (
-                <AchievementBadge key={a.id} achievement={a} size="small" />
+              <AchievementBadge
+                key={a.id}
+                achievement={a}
+                size="small"
+                isLocked={!profile.achievements.includes(a.id)}
+              />
             ))}
           </div>
         ) : (
@@ -234,7 +241,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
       </div>
 
       {/* Total cards collected */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+      <button
+        onClick={() => setShowInspirationLibrary(true)}
+        className="bg-white/5 border border-white/10 rounded-2xl p-5 text-left hover:border-[#4FACFE]/30 transition-colors active:scale-[0.98]"
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Sparkles size={16} className="text-[#4FACFE]" />
@@ -242,7 +252,20 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
           </div>
           <span className="text-2xl font-bold text-white">{profile.totalCards}</span>
         </div>
-      </div>
+        {inspirationCards.length > 0 && (
+          <p className="text-white/30 text-xs mt-2">点击查看全部</p>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {showInspirationLibrary && (
+          <InspirationLibrary
+            cards={inspirationCards}
+            onRemove={removeInspirationCard}
+            onClose={() => setShowInspirationLibrary(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

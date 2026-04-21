@@ -48,6 +48,7 @@ export interface UserProfile {
   lastSession: number;
   totalCards: number;
   maxCompletion: number;
+  inspirationCards: string[];
 }
 
 // Achievement definition

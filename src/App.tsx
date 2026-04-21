@@ -22,7 +22,7 @@ const THEMES: Record<ThemeType, string> = {
 
 export default function App() {
   // Session context
-  const { addSessionResult, checkAndUnlockAchievements } = useSession();
+  const { addSessionResult, checkAndUnlockAchievements, addInspirationCard } = useSession();
 
   // Refs for session functions (to avoid dependency issues with React Compiler)
   const addSessionResultRef = useRef(addSessionResult);
@@ -174,7 +174,8 @@ export default function App() {
   // Add inspiration card
   const addCard = useCallback((text: string) => {
     setGeneratedCards((prev) => [...prev, text]);
-  }, []);
+    addInspirationCard(text);
+  }, [addInspirationCard]);
 
   // Handle achievement modal close
   const handleAchievementClose = useCallback(() => {
