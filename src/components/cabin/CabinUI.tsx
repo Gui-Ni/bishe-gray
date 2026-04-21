@@ -38,8 +38,8 @@ const formatTime = (seconds: number) => {
   return `${m}:${s}`;
 };
 
-// Inspiration quotes database
-const INSPIRATION_DB = [
+// Inspiration quotes
+const INSPIRATION_QUOTES = [
   '在静谧的深处，光总是会找到它的出口。',
   '每一次呼吸，都是与宇宙频率的重新校准。',
   '向内收束不是封闭，而是为了更有力量的绽放。',
@@ -149,9 +149,10 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
   }, [cabinMode, sessionConfig.sound]);
 
   // Mount background noise generator (for white noise only)
+  const noiseVolume = JSON.parse(localStorage.getItem('xinyue_settings') || '{}').noiseVolume || 50;
   useBackgroundNoise(
     cabinMode === 'recharge' || cabinMode === 'inspiration',
-    { noiseType: sessionConfig.sound === 'white' ? 'white' : 'brown' }
+    { volume: noiseVolume / 100, noiseType: sessionConfig.sound === 'white' ? 'white' : 'brown' }
   );
 
   // Voice recognition logic - DISABLED for debugging
@@ -197,7 +198,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
 
   const handleVoiceSuccess = useCallback(() => {
     setRecordFeedback('已捕捉并存入卡片');
-    addCard(INSPIRATION_DB[Math.floor(Math.random() * INSPIRATION_DB.length)]);
+    addCard(INSPIRATION_QUOTES[Math.floor(Math.random() * INSPIRATION_QUOTES.length)]);
     setTimeout(() => setRecordFeedback(''), 3000);
   }, [addCard]);
 
@@ -669,8 +670,17 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
           </AnimatePresence>
 
           {/* Center logo */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
             <SyncLogo className="scale-[0.6]" isSyncing={pushProgress > 20 || cabinMode === 'inspiration'} />
+            {cabinMode === 'recharge' && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-white/30 text-[10px] tracking-[0.3em] mt-2 text-center"
+              >
+                将能量球拖至中央
+              </motion.span>
+            )}
           </div>
 
           {/* Idle waiting message */}

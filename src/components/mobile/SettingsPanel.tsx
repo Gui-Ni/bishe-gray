@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Volume2, Sparkles, Trash2, Download, Info } from 'lucide-react';
+import { ArrowLeft, Volume2, Trash2, Info } from 'lucide-react';
 import { useSession } from '../../contexts';
 import { useLocalStorage } from '../../hooks';
 import { Settings } from '../../types';
@@ -12,8 +12,6 @@ interface SettingsPanelProps {
 const DEFAULT_SETTINGS: Settings = {
   noiseVolume: 50,
   voiceFeedback: true,
-  animationsEnabled: true,
-  simplifiedMode: false,
   anonymousStats: true,
 };
 
@@ -26,21 +24,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
   const [settings, setSettings] = useLocalStorage<Settings>('xinyue_settings', DEFAULT_SETTINGS);
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-
-  const handleExport = () => {
-    const data = {
-      exportDate: new Date().toISOString(),
-      settings,
-      note: '数据导出功能开发中',
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'xinyue-settings.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handleReset = () => {
     resetAllData();
@@ -79,7 +62,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
         {/* Noise volume */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-white/40 text-xs">背景噪音音量</span>
+            <span className="text-white/40 text-xs">背景音量</span>
             <span className="text-[#4FACFE] text-sm">{settings.noiseVolume}%</span>
           </div>
           <input
@@ -110,65 +93,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Display settings */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <Sparkles size={16} className="text-[#4FACFE]" />
-          <span className="text-white/80 text-sm">显示设置</span>
-        </div>
-
-        {/* Animations */}
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-white/40 text-xs">动画效果</span>
-          <button
-            onClick={() => setSettings((s) => ({ ...s, animationsEnabled: !s.animationsEnabled }))}
-            className={`w-12 h-6 rounded-full transition-colors relative ${
-              settings.animationsEnabled ? 'bg-[#4FACFE]' : 'bg-white/20'
-            }`}
-          >
-            <div
-              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                settings.animationsEnabled ? 'left-7' : 'left-1'
-              }`}
-            />
-          </button>
-        </div>
-
-        {/* Simplified mode */}
-        <div className="flex justify-between items-center">
-          <span className="text-white/40 text-xs">精简模式</span>
-          <button
-            onClick={() => setSettings((s) => ({ ...s, simplifiedMode: !s.simplifiedMode }))}
-            className={`w-12 h-6 rounded-full transition-colors relative ${
-              settings.simplifiedMode ? 'bg-[#4FACFE]' : 'bg-white/20'
-            }`}
-          >
-            <div
-              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                settings.simplifiedMode ? 'left-7' : 'left-1'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
-
       {/* Data settings */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-4">
-          <Download size={16} className="text-[#4FACFE]" />
+          <Trash2 size={16} className="text-[#4FACFE]" />
           <span className="text-white/80 text-sm">数据管理</span>
         </div>
 
         <div className="space-y-3">
-          {/* Export */}
-          <button
-            onClick={handleExport}
-            className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
-          >
-            <Download size={14} />
-            导出设置
-          </button>
-
           {/* Clear history */}
           <button
             onClick={() => {

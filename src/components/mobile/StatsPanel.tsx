@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Clock, Sparkles, Target } from 'lucide-react';
 import { useSession } from '../../contexts';
+import { Achievement } from '../../types';
 import AchievementBadge from '../shared/AchievementBadge';
+import AchievementDetail from '../shared/AchievementDetail';
 import InspirationLibrary from '../shared/InspirationLibrary';
 
 type Period = 'day' | 'week' | 'month';
@@ -16,9 +18,10 @@ interface StatsPanelProps {
  */
 const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
   const { profile, sessionHistory, achievements, unlockedAchievements, inspirationCards, removeInspirationCard } = useSession();
-  const [period, setPeriod] = useState<Period>('week');
+  const [period, setPeriod] = useState<Period>('day');
   const [showAllAchievements, setShowAllAchievements] = useState(false);
   const [showInspirationLibrary, setShowInspirationLibrary] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
 
   // Filter sessions by period
   const getFilteredSessions = () => {
@@ -136,7 +139,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
           <div className="text-2xl font-bold text-white">{formatTime(periodTimeSeconds)}</div>
-          <div className="text-white/40 text-[10px] tracking-wider mt-1">专注时长</div>
+          <div className="text-white/40 text-[10px] tracking-wider mt-1">周期专注时长</div>
         </div>
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
           <div className="text-2xl font-bold text-white">{getStreakDays()}</div>
@@ -167,7 +170,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
             <Clock size={14} className="text-[#4FACFE]" />
             <span className="text-white/40 text-[10px] tracking-widest">总时长</span>
           </div>
-          <p className="text-2xl font-semibold text-white">{formatTime(totalTimeMinutes * 60)}</p>
+          <p className="text-2xl font-semibold text-white">{totalTimeMinutes}分钟</p>
         </div>
       </div>
 
@@ -225,13 +228,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
                 achievement={a}
                 size="small"
                 isLocked={!profile.achievements.includes(a.id)}
+                onClick={profile.achievements.includes(a.id) ? () => setSelectedAchievement(a) : undefined}
               />
             ))}
           </div>
         ) : (
           <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
             {unlockedAchievements.slice(0, 5).map((a) => (
-              <AchievementBadge key={a.id} achievement={a} size="small" />
+              <AchievementBadge key={a.id} achievement={a} size="small" onClick={() => setSelectedAchievement(a)} />
             ))}
             {unlockedAchievements.length === 0 && (
               <p className="text-white/30 text-xs w-full text-center py-2">暂无成就，继续努力！</p>
@@ -252,9 +256,9 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
           </div>
           <span className="text-2xl font-bold text-white">{profile.totalCards}</span>
         </div>
-        {inspirationCards.length > 0 && (
-          <p className="text-white/30 text-xs mt-2">点击查看全部</p>
-        )}
+        <p className="text-white/30 text-xs mt-2">
+          {inspirationCards.length > 0 ? '点击查看全部' : '点击查看'}
+        </p>
       </button>
 
       <AnimatePresence>
@@ -263,6 +267,16 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
             cards={inspirationCards}
             onRemove={removeInspirationCard}
             onClose={() => setShowInspirationLibrary(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedAchievement && (
+          <AchievementDetail
+            achievement={selectedAchievement}
+            unlockedAt={profile.achievementsUnlockedAt[selectedAchievement.id]}
+            onClose={() => setSelectedAchievement(null)}
           />
         )}
       </AnimatePresence>

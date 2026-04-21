@@ -58,6 +58,7 @@ export default function App() {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [generatedCards, setGeneratedCards] = useState<string[]>([]);
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
+  const isEndingRef = useRef(false);
 
   // Refs to avoid dependency issues
   const targetModeRef = useRef(targetMode);
@@ -135,6 +136,10 @@ export default function App() {
 
   // End session and show results - defined as regular function using refs
   const endSession = () => {
+    // Guard against multiple calls
+    if (isEndingRef.current || cabinMode === 'ending') return;
+    isEndingRef.current = true;
+
     const currentTargetMode = targetModeRef.current;
     const currentCards = generatedCardsRef.current;
     const currentTimeElapsed = timeElapsedRef.current;
@@ -145,7 +150,7 @@ export default function App() {
     const result: SessionResult = {
       mode: currentTargetMode || 'recharge',
       percent: percent === 0 ? 1 : percent,
-      score: (7.0 + Math.random() * 2).toFixed(1),
+      score: Math.min(9, Math.max(5, 5 + (percent / 100 * 4) + (currentCards.length * 0.1))).toFixed(1),
       cards: currentCards.length,
       timestamp: Date.now(),
     };
@@ -154,16 +159,17 @@ export default function App() {
     setView('cabin');
     setCabinMode('ending');
 
-    // Save session result to history and profile
-    addSessionResultRef.current(result);
+    // Save session result to history and profile, get updated profile for achievement checking
+    const updatedProfile = addSessionResultRef.current(result);
 
-    // Check for new achievements
-    const newAchievements = checkAndUnlockAchievementsRef.current();
+    // Check for new achievements using the freshly updated profile
+    const newAchievements = checkAndUnlockAchievementsRef.current(updatedProfile);
     if (newAchievements.length > 0) {
       setAchievementQueue((prev) => [...prev, ...newAchievements]);
     }
 
     setTimeout(() => {
+      isEndingRef.current = false;
       setCabinMode('idle');
       setTargetMode(null);
       setMobileState('result');
@@ -192,9 +198,10 @@ export default function App() {
   }, [achievementQueue, showAchievement]);
 
   return (
-    <div className={`min-h-screen ${THEMES[sessionConfig.theme]} text-white selection:bg-[#4FACFE]/30 flex flex-col font-sans`}>
-      {/* Navigation */}
-      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-2 h-12 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top">
+    <>
+      <div className={`min-h-screen ${THEMES[sessionConfig.theme]} text-white selection:bg-[#4FACFE]/30 flex flex-col font-sans`}>
+        {/* Navigation */}
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-2 h-12 bg-white/5 border border-white/10 backdrop-blur-md rounded-full safe-top">
         <button
           onClick={() => setView('cabin')}
           className={`px-5 py-2.5 rounded-full transition-all duration-500 flex items-center justify-center gap-2 ${
@@ -270,8 +277,9 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
 
-      {/* Achievement unlock modal */}
+      {/* Achievement unlock modal - outside main div for proper stacking */}
       <AnimatePresence>
         {showAchievement && (
           <AchievementModal
@@ -281,6 +289,6 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }

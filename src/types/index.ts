@@ -42,8 +42,8 @@ export interface SessionResult {
 export interface UserProfile {
   totalSessions: number;
   totalTime: number;
-  favoriteMode: CabinMode | null;
   achievements: string[];
+  achievementsUnlockedAt: Record<string, number>;
   streak: number;
   lastSession: number;
   totalCards: number;

@@ -10,8 +10,8 @@ import {
 const DEFAULT_PROFILE: UserProfile = {
   totalSessions: 0,
   totalTime: 0,
-  favoriteMode: null,
   achievements: [],
+  achievementsUnlockedAt: {},
   streak: 0,
   lastSession: 0,
   totalCards: 0,
@@ -116,13 +116,13 @@ interface SessionContextValue {
 
   // Session history
   sessionHistory: SessionResult[];
-  addSessionResult: (result: SessionResult) => void;
+  addSessionResult: (result: SessionResult) => Partial<UserProfile>;
   clearHistory: () => void;
 
   // Achievements
   achievements: Achievement[];
   unlockedAchievements: Achievement[];
-  checkAndUnlockAchievements: () => Achievement[];
+  checkAndUnlockAchievements: (updatedProfile?: Partial<UserProfile>) => Achievement[];
 
   // Inspiration cards
   inspirationCards: string[];
@@ -163,8 +163,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setProfile((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  // Add session result and update profile - use refs to avoid dependency on profile
-  const addSessionResult = useCallback((result: SessionResult) => {
+  // Add session result and update profile - returns new profile values for immediate achievement checking
+  const addSessionResult = useCallback((result: SessionResult): Partial<UserProfile> => {
     // Add to history
     setSessionHistory((prev) => [result, ...prev].slice(0, 100));
 
@@ -180,25 +180,24 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const newStreak = daysSinceLastSession === 1 ? currentProfile.streak + 1 :
                       daysSinceLastSession === 0 ? currentProfile.streak : 1;
 
-    // Update favorite mode
     const newTotalSessions = currentProfile.totalSessions + 1;
-    const newFavoriteMode = currentProfile.favoriteMode ||
-      (newTotalSessions === 1 ? result.mode : currentProfile.favoriteMode);
 
     // Update max completion
     const newMaxCompletion = Math.max(currentProfile.maxCompletion, result.percent);
 
-    // Update profile
-    setProfile((prev) => ({
-      ...prev,
+    const profileUpdates: Partial<UserProfile> = {
       totalSessions: newTotalSessions,
-      totalTime: prev.totalTime + (result.mode === 'recharge' ? 600 : 720) * (result.percent / 100),
-      favoriteMode: newFavoriteMode,
-      totalCards: prev.totalCards + result.cards,
+      totalTime: currentProfile.totalTime + (result.mode === 'recharge' ? 600 : 720) * (result.percent / 100),
+      totalCards: currentProfile.totalCards + result.cards,
       maxCompletion: newMaxCompletion,
       streak: newStreak,
       lastSession: now,
-    }));
+    };
+
+    // Update profile
+    setProfile((prev) => ({ ...prev, ...profileUpdates }));
+
+    return profileUpdates;
   }, []);
 
   // Clear session history
@@ -206,11 +205,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setSessionHistory([]);
   }, []);
 
-  // Check and unlock achievements - use ref to avoid dependency on profile
-  const checkAndUnlockAchievements = useCallback(() => {
-    const currentProfile = profileRef.current;
+  // Check and unlock achievements - accepts optional profile for immediate checking after updates
+  const checkAndUnlockAchievements = useCallback((updatedProfile?: Partial<UserProfile>) => {
+    const currentProfile = updatedProfile
+      ? { ...profileRef.current, ...updatedProfile }
+      : profileRef.current;
     const newlyUnlocked: Achievement[] = [];
     const achievementsToUnlock: string[] = [];
+    const now = Date.now();
 
     ACHIEVEMENTS.forEach((achievement) => {
       // Skip if already unlocked
@@ -223,11 +225,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // Batch update all achievements at once
+    // Batch update all achievements at once with timestamps
     if (achievementsToUnlock.length > 0) {
+      const unlockedAt: Record<string, number> = {};
+      achievementsToUnlock.forEach((id) => {
+        unlockedAt[id] = now;
+      });
       setProfile((prev) => ({
         ...prev,
         achievements: [...prev.achievements, ...achievementsToUnlock],
+        achievementsUnlockedAt: { ...prev.achievementsUnlockedAt, ...unlockedAt },
       }));
     }
 
@@ -249,12 +256,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   // Add inspiration card
   const addInspirationCard = useCallback((card: string) => {
     setInspirationCards((prev) => [card, ...prev]);
-    setProfile((prev) => ({ ...prev, totalCards: prev.totalCards + 1 }));
   }, []);
 
   // Remove inspiration card
   const removeInspirationCard = useCallback((index: number) => {
     setInspirationCards((prev) => prev.filter((_, i) => i !== index));
+    setProfile((prev) => ({ ...prev, totalCards: Math.max(0, prev.totalCards - 1) }));
   }, []);
 
   // Memoize context value to prevent unnecessary re-renders
