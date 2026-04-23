@@ -90,10 +90,10 @@ const MobileUI: React.FC<MobileUIProps> = React.memo(({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center w-full no-select no-tap-highlight"
+      className="h-screen flex items-center justify-center w-full no-select no-tap-highlight overflow-hidden"
     >
       {/* Phone frame container */}
-      <div className="relative w-[400px] h-[720px] max-h-[90vh] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-[400px] h-[85vh] max-h-[720px] rounded-[48px] border-[6px] border-white/15 bg-[#0a0a0a] shadow-2xl overflow-hidden">
         {/* Phone notch */}
         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-50" />
 

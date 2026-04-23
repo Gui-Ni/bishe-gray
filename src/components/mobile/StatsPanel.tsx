@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Clock, Sparkles, Target } from 'lucide-react';
+import { ArrowLeft, Clock, Sparkles, Target, ChevronRight } from 'lucide-react';
 import { useSession } from '../../contexts';
 import { Achievement } from '../../types';
 import AchievementBadge from '../shared/AchievementBadge';
@@ -254,7 +254,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
             <Sparkles size={16} className="text-[#4FACFE]" />
             <span className="text-white/60 text-xs tracking-widest">灵感卡片</span>
           </div>
-          <span className="text-2xl font-bold text-white">{profile.totalCards}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold text-white">{profile.totalCards}</span>
+            <ChevronRight size={18} className="text-white/30" />
+          </div>
         </div>
         <p className="text-white/30 text-xs mt-2">
           {inspirationCards.length > 0 ? '点击查看全部' : '点击查看'}

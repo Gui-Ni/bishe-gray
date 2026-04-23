@@ -325,7 +325,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
       if (pos) {
         // Ball position is relative to container center via CSS transform
         const dist = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2));
-        if (dist < 200) {
+        if (dist < 350) {
           setBalls((prev) => prev.map((b) => (b.id === draggingBall ? { ...b, isConsumed: true } : b)));
           setPushProgress(100);
         }
@@ -484,13 +484,16 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
         setRandomSpots([
           { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
           { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
+          { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
         ]);
       };
       generateSpots();
 
       const spotInterval = setInterval(() => {
         setRandomSpots((prev) => {
-          if (prev.length > 3) return prev;
+          // Maintain 5-6 spots: if less than 5, add 2
+          if (prev.length >= 6) return prev;
+          if (prev.length >= 5) return prev;
           const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
           const h = typeof window !== 'undefined' ? window.innerHeight : 800;
           const maxX = ((w - 64) / 2 - 60) * 0.8;
@@ -506,9 +509,15 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
               y: minY + Math.random() * (maxY - minY),
               size: 0.6 + Math.random() * 0.6,
             },
+            {
+              id: Math.random(),
+              x: (Math.random() - 0.5) * maxX * 2,
+              y: minY + Math.random() * (maxY - minY),
+              size: 0.6 + Math.random() * 0.6,
+            },
           ];
         });
-      }, 4000);
+      }, 1400);
 
       return () => clearInterval(spotInterval);
     } else {
@@ -554,22 +563,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
     }
 
     setRandomSpots((prev) => prev.filter((s) => s.id !== id));
-    setTimeout(
-      () => {
-        const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
-        const h = typeof window !== 'undefined' ? window.innerHeight : 800;
-        const maxX = ((w - 64) / 2 - 60) * 0.8;
-        const frameHeight = h - 104;
-        const topMargin = frameHeight * 0.1;
-        const minY = -(h - 64) / 2 + 40 + topMargin;
-        const maxY = -(frameHeight * 0.15); // 15% bottom margin
-        setRandomSpots((prev) => [
-          ...prev,
-          { id: Math.random(), x: (Math.random() - 0.5) * maxX * 2, y: minY + Math.random() * (maxY - minY), size: 0.8 + Math.random() * 0.6 },
-        ]);
-      },
-      500
-    );
+    // Don't auto-add here - interval will maintain 3-6 spots naturally
   }, [cabinMode, randomSpots]);
 
   return (
@@ -731,13 +725,16 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
               {balls.map(
                 (ball) =>
                   !ball.isConsumed && (
-                    <div
+                    <motion.div
                       key={ball.id}
                       className="w-12 h-12 rounded-full bg-[#4FACFE]/30 backdrop-blur-md border border-[#4FACFE]/50 cursor-grab active:cursor-grabbing shadow-[0_0_20px_rgba(79,172,254,0.3)] flex items-center justify-center touch-none"
                       style={{
                         position: 'absolute',
                         transform: `translate(${(ballPositions[ball.id]?.x ?? ball.x)}px, ${(ballPositions[ball.id]?.y ?? ball.y)}px)`,
                       }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
                       onMouseDown={(e) => handleBallMouseDown(e, ball.id)}
                       onTouchStart={(e) => handleBallTouchStart(e, ball.id)}
                       onMouseMove={(e) => handleContainerMouseMove(e)}
@@ -749,7 +746,7 @@ const CabinUI: React.FC<CabinUIProps> = React.memo(({
                         transition={{ duration: 1.5 + (ball.id % 2) * 0.2, repeat: Infinity }}
                         className="w-8 h-8 rounded-full bg-[#4FACFE]/60 blur-[6px]"
                       />
-                    </div>
+                    </motion.div>
                   )
               )}
               <div
